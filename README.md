@@ -1,3 +1,15 @@
+---
+title: GSE Prime Discovery System
+emoji: 🔢
+colorFrom: blue
+colorTo: purple
+sdk: gradio
+sdk_version: "4.0.0"
+app_file: app.py
+pinned: false
+license: mit
+---
+
 # 🚀 نظام GSE المتقدم (Generalized Sigmoid Equation)
 
 <div align="center">
