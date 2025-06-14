@@ -1,0 +1,9 @@
+{
+  "timestamp": "2025-06-14T23:59:47.178543",
+  "model_type": "final_enhanced_gse",
+  "performance_metrics": {
+    "accuracy": 0.3025210084033613,
+    "precision": 0.22105263157894736,
+    "recall": 0.7,
+    "f1_score": 0.33599999999999997,
+    "true_positives": 

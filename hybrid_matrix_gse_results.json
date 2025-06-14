@@ -1,0 +1,22 @@
+{
+  "timestamp": "2025-06-14T23:59:24.198726",
+  "model_type": "hybrid_matrix_gse",
+  "max_num": 150,
+  "performance_metrics": {
+    "true_primes": 35,
+    "predicted_primes": 47,
+    "correct_predictions": 33,
+    "missed_primes": 2,
+    "false_positives": 14,
+    "accuracy": 94.28571428571428,
+    "precision": 70.2127659574468,
+    "recall": 94.28571428571428,
+    "f1_score": 80.48780487804878
+  },
+  "stage_results": {
+    "matrix_candidates": 50,
+    "high_confidence": 14,
+    "gse_accepted": 33,
+    "final_primes": 47
+  }
+}

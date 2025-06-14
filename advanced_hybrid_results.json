@@ -1,0 +1,26 @@
+{
+  "timestamp": "2025-06-14T23:58:49.269405",
+  "system_type": "advanced_hybrid_system",
+  "test_ranges": [
+    200,
+    300,
+    500
+  ],
+  "results_summary": {
+    "200": {
+      "best_method": "majority",
+      "best_f1": 91.30434782608697,
+      "processing_time": 0.032930612564086914
+    },
+    "300": {
+      "best_method": "weighted",
+      "best_f1": 73.88535031847134,
+      "processing_time": 0.04482316970825195
+    },
+    "500": {
+      "best_method": "weighted",
+      "best_f1": 61.32404181184669,
+      "processing_time": 0.052057504653930664
+    }
+  }
+}
