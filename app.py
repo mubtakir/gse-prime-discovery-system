@@ -16,14 +16,71 @@ import base64
 
 # إضافة مسار المشروع
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src'))
+
+# استيراد آمن للمكونات
+enhanced_matrix_sieve = None
+AdaptiveGSEEquation = None
+PrimeResearchToolkit = None
 
 try:
     from src.enhanced_matrix_sieve import enhanced_matrix_sieve
-    from src.adaptive_equations import AdaptiveGSEEquation
-    from src.research_toolkit import PrimeResearchToolkit
-    print("✅ تم تحميل جميع المكونات بنجاح")
+    print("✅ تم تحميل enhanced_matrix_sieve")
 except ImportError as e:
-    print(f"❌ خطأ في تحميل المكونات: {e}")
+    print(f"⚠️ لم يتم تحميل enhanced_matrix_sieve: {e}")
+
+try:
+    from src.adaptive_equations import AdaptiveGSEEquation
+    print("✅ تم تحميل AdaptiveGSEEquation")
+except ImportError as e:
+    print(f"⚠️ لم يتم تحميل AdaptiveGSEEquation: {e}")
+
+try:
+    from src.research_toolkit import PrimeResearchToolkit
+    print("✅ تم تحميل PrimeResearchToolkit")
+except ImportError as e:
+    print(f"⚠️ لم يتم تحميل PrimeResearchToolkit: {e}")
+
+print("🚀 تم تحميل التطبيق - جاهز للعمل")
+
+# دوال احتياطية للأعداد الأولية
+def is_prime_simple(n):
+    """دالة بسيطة لفحص الأعداد الأولية"""
+    if n < 2:
+        return False
+    if n == 2:
+        return True
+    if n % 2 == 0:
+        return False
+    for i in range(3, int(n**0.5) + 1, 2):
+        if n % i == 0:
+            return False
+    return True
+
+def simple_sieve(max_num):
+    """غربال بسيط للأعداد الأولية"""
+    if max_num < 2:
+        return []
+
+    sieve = [True] * (max_num + 1)
+    sieve[0] = sieve[1] = False
+
+    for i in range(2, int(max_num**0.5) + 1):
+        if sieve[i]:
+            for j in range(i*i, max_num + 1, i):
+                sieve[j] = False
+
+    return [i for i in range(2, max_num + 1) if sieve[i]]
+
+def enhanced_matrix_sieve_fallback(max_num):
+    """دالة احتياطية للغربال المصفوفي"""
+    primes = simple_sieve(max_num)
+    return {
+        'prime_candidates': primes,
+        'high_confidence': primes[:len(primes)//2],
+        'low_confidence': primes[len(primes)//2:],
+        'method': 'fallback_sieve'
+    }
 
 def discover_primes(max_num, analysis_type):
     """
@@ -34,21 +91,25 @@ def discover_primes(max_num, analysis_type):
         max_num = int(max_num)
         if max_num < 10 or max_num > 1000:
             return "❌ يرجى إدخال رقم بين 10 و 1000", None, ""
-        
-        # تطبيق الغربال المصفوفي
-        matrix_result = enhanced_matrix_sieve(max_num)
-        candidates = matrix_result['prime_candidates']
+
+        # تطبيق الغربال المصفوفي (مع احتياطي)
+        if enhanced_matrix_sieve is not None:
+            try:
+                matrix_result = enhanced_matrix_sieve(max_num)
+                candidates = matrix_result['prime_candidates']
+                method_used = "Enhanced Matrix Sieve"
+            except Exception as e:
+                print(f"خطأ في enhanced_matrix_sieve: {e}")
+                matrix_result = enhanced_matrix_sieve_fallback(max_num)
+                candidates = matrix_result['prime_candidates']
+                method_used = "Fallback Sieve"
+        else:
+            matrix_result = enhanced_matrix_sieve_fallback(max_num)
+            candidates = matrix_result['prime_candidates']
+            method_used = "Simple Sieve"
         
         # الأعداد الأولية الحقيقية للمقارنة
-        def is_prime(n):
-            if n < 2:
-                return False
-            for i in range(2, int(n**0.5) + 1):
-                if n % i == 0:
-                    return False
-            return True
-        
-        true_primes = [n for n in range(2, max_num + 1) if is_prime(n)]
+        true_primes = [n for n in range(2, max_num + 1) if is_prime_simple(n)]
         
         # حساب الأداء
         correct = len([p for p in candidates if p in true_primes])
@@ -61,6 +122,8 @@ def discover_primes(max_num, analysis_type):
         # إنشاء النتائج
         results_text = f"""
 🎯 **نتائج اكتشاف الأعداد الأولية حتى {max_num}:**
+
+🔧 **الطريقة المستخدمة:** {method_used}
 
 📊 **الإحصائيات:**
    • أعداد أولية حقيقية: {len(true_primes)}
@@ -157,24 +220,27 @@ def research_analysis(max_num):
     """
     تحليل بحثي متقدم للأعداد الأولية
     """
-    
+
     try:
         max_num = int(max_num)
         if max_num < 50 or max_num > 500:
             return "❌ يرجى إدخال رقم بين 50 و 500 للتحليل البحثي"
-        
-        toolkit = PrimeResearchToolkit()
-        
-        # تحليل التوزيع
-        dist_result = toolkit.prime_distribution_analysis(max_num, intervals=5)
-        
-        # تحليل الفجوات
-        gap_result = toolkit.gap_analysis(max_num)
-        
-        # تحليل الأعداد التوأم
-        twin_result = toolkit.twin_prime_analysis(max_num)
-        
-        research_text = f"""
+
+        # استخدام التحليل البسيط إذا لم تتوفر الأدوات المتقدمة
+        if PrimeResearchToolkit is not None:
+            try:
+                toolkit = PrimeResearchToolkit()
+
+                # تحليل التوزيع
+                dist_result = toolkit.prime_distribution_analysis(max_num, intervals=5)
+
+                # تحليل الفجوات
+                gap_result = toolkit.gap_analysis(max_num)
+
+                # تحليل الأعداد التوأم
+                twin_result = toolkit.twin_prime_analysis(max_num)
+
+                research_text = f"""
 🔬 **التحليل البحثي المتقدم حتى {max_num}:**
 
 📊 **تحليل التوزيع:**
@@ -198,9 +264,50 @@ def research_analysis(max_num):
    • الأعداد التوأم تتناقص مع زيادة النطاق
    • التوزيع يتبع النظرية الرياضية بدقة عالية
 """
-        
+                return research_text
+
+            except Exception as e:
+                print(f"خطأ في الأدوات المتقدمة: {e}")
+                # استخدام التحليل البسيط
+                pass
+
+        # تحليل بسيط احتياطي
+        primes = simple_sieve(max_num)
+
+        # حساب الفجوات
+        gaps = [primes[i+1] - primes[i] for i in range(len(primes)-1)] if len(primes) > 1 else []
+
+        # الأعداد التوأم
+        twins = [(primes[i], primes[i+1]) for i in range(len(primes)-1)
+                if primes[i+1] - primes[i] == 2]
+
+        research_text = f"""
+🔬 **التحليل البحثي البسيط حتى {max_num}:**
+
+📊 **تحليل التوزيع:**
+   • إجمالي الأعداد الأولية: {len(primes)}
+   • الكثافة العامة: {len(primes)/max_num:.6f}
+   • النسبة المئوية: {len(primes)/max_num*100:.2f}%
+
+🔍 **تحليل الفجوات:**
+   • متوسط الفجوة: {np.mean(gaps):.2f}
+   • أصغر فجوة: {min(gaps) if gaps else 0}
+   • أكبر فجوة: {max(gaps) if gaps else 0}
+   • عدد الفجوات: {len(gaps)}
+
+👥 **تحليل الأعداد التوأم:**
+   • أزواج الأعداد التوأم: {len(twins)}
+   • نسبة الأعداد التوأم: {len(twins)*2/len(primes)*100:.2f}%
+   • أمثلة: {', '.join([f'({p1},{p2})' for p1, p2 in twins[:5]])}
+
+🧮 **ملاحظات:**
+   • تم استخدام التحليل البسيط
+   • النتائج دقيقة ولكن أقل تفصيلاً
+   • للحصول على تحليل متقدم، تحقق من تحميل المكونات
+"""
+
         return research_text
-        
+
     except Exception as e:
         return f"❌ حدث خطأ في التحليل البحثي: {str(e)}"
 
